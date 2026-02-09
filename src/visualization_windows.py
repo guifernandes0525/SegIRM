@@ -13,11 +13,11 @@ imgs_path = 'images/'
 
 #image = nib.load(nii_path + nii_image + '.nii').get_fdata()
 
-image = np.load("segmentation/boundaries_2d_n100_c1_s0.npy")
+image = np.load("segmentation/boundaries_2d_n400_c1_s0.npy")
 
 image = image[:,:,2]
 
-image2 = dilation(np.load("segmentation/boundaries_2d_n100_c1_s0.npy"))
+image2 = np.load("segmentation/boundaries_2d_n100_c1_s0.npy")
 
 print(image2.shape)
 print(np.unique(image2))
@@ -81,8 +81,5 @@ plt.xlabel('x Axis')
 plt.ylabel('y axis')
 plt.colorbar(label='Signal intensity')
 plt.show()
-
-
-
 
  """

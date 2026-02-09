@@ -64,7 +64,7 @@ print(img2d.shape)
 
 
 with open(fig_path + '2d_metrics.csv', 'w+') as metrics:
-    metrics.write('N segments;Compactness;σ (Gaussian Kernel diam.);Under Segmentation;Boundary Recall\n')
+    metrics.write('N segments;Compactness; (Gaussian Kernel diam.);Under Segmentation;Boundary Recall\n')
 
     for n_segments in n_segments_list:
         for compactness in compactness_list:

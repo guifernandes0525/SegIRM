@@ -1,4 +1,4 @@
-N segments;Compactness;σ (Gaussian Kernel diam.);Under Segmentation;Boundary Recall
+N segments;Compactness; (Gaussian Kernel diam.);Under Segmentation;Boundary Recall
  100; 1;0;0.38795;0.64746
  100; 1;1;0.39042;0.64330
  100; 1;2;0.39530;0.63530

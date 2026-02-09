@@ -1,0 +1,36 @@
+NC05 : 
++ very regular and visually pleasing superpixels 
+- boundary adherence relatively poor
+- one of the slowest
+complexity of O (N^3/2) N : number of pixels
+
+GS04 : 
++ adheres well to image boundaries in practice 
+- produces superpoxels with very irregular sizes and shapes.
+complexity of O(N log N)
+
+TP09 : 
+= constrained to have uniform size, compactness and boundary adherence
+complexity of O(N)
+one of the slowest algorithms
+- poor boundary adherence
+
+SL08 : 
+complexity of O(N^(3/2)*logN)
+sontrgly influence the quality and speed of the output
+
+GCa10 and GCb10 : 
+each pixel belongs to only one of the overlapping regions, two variants : 
+GCa10 : for generating compact superpixels
+GCb10 : for constant-intensity superpixels
+
+QS08 : 
+- quite slow
+complexity of O(dN²) 
+d : small constant
++ realtively good boundary adherence
+
+WS91 : 
+ofthen highly irregular in size and shape
+- not good boundary adherence 
+relatively fast O(N log N)
