@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+# PNG and NPY
+
+*.png 
+*.npy
+
 # Distribution / packaging
 .Python
 build/
@@ -67,6 +72,8 @@ instance/
 
 # Scrapy stuff:
 .scrapy
+
+
 
 # Sphinx documentation
 docs/_build/
