@@ -6,7 +6,7 @@ complexity of O (N^3/2) N : number of pixels
 
 GS04 : 
 + adheres well to image boundaries in practice 
-- produces superpoxels with very irregular sizes and shapes.
+- produces superpixels with very irregular sizes and shapes.
 complexity of O(N log N)
 
 TP09 : 

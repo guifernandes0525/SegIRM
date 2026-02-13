@@ -1,58 +1,28 @@
 import nibabel as nib
 import numpy as np
+import os
 import matplotlib.pyplot as plt
-from skimage.morphology import dilation
 
-# solution to plot problem "sudo apt install python3-tk"
 
-nii_path = "data_nii/"
-
-nii_image = 'gt'
-
-imgs_path = 'images/'
-
-#image = nib.load(nii_path + nii_image + '.nii').get_fdata()
-
-image = np.load("segmentation/boundaries_2d_n400_c1_s0.npy")
-
-image = image[:,:,2]
-
-image2 = np.load("segmentation/boundaries_2d_n100_c1_s0.npy")
-
-print(image2.shape)
-print(np.unique(image2))
-
-image2 = image2[:,:,0]
-
-dimensions = image.shape
-#
-#midx_slice = image[dimensions[0]//2,:,:]
-#midy_slice = image[:,dimensions[1]//2,:]
-#midz_slice = image[:,:,dimensions[2]//2]
-#
-#plane_slices = [midx_slice, midy_slice, midz_slice]
-
-if nii_image == 'img' or nii_image == 'mask':
-    map_color = 'gray'
-else:
-    map_color = 'jet'
-
+seg_imgs = "segmentation_imgs/" 
+seg_npy = "segmentation/"
 
 plt.figure()
-plt.imshow(image.T, cmap=map_color, origin = 'lower')
-plt.title('Saggital slices of ' + nii_image)
-plt.xlabel('x Axis')
-plt.ylabel('y axis')
-plt.colorbar(label='Signal intensity')
-plt.show(block=False)
 
-plt.figure()
-plt.imshow(image2.T, cmap=map_color, origin = 'lower')
-plt.title('Saggital slices of ' + nii_image)
-plt.xlabel('x Axis')
-plt.ylabel('y axis')
-plt.colorbar(label='Signal intensity')
-plt.show()
+for filename in os.listdir(seg_npy):
+    file_path = os.path.join(seg_npy, filename)
+    
+    if os.path.isfile(file_path):
+
+        image = np.load(file_path)[:,:,0]
+        plt.imshow(image, origin = 'lower')
+        plt.title(file_path.removesuffix('.npy').replace('_',' '))
+        plt.xlabel('x Axis')
+        plt.ylabel('y axis')
+        plt.colorbar(label='Signal intensity')
+        plt.tight_layout()
+        plt.savefig(seg_imgs + filename.removesuffix('.npy') + '.png')
+        plt.clf()
 
 """
 plt.imshow(midx_slice.T, cmap=map_color, origin = 'lower')

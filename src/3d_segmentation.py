@@ -10,7 +10,7 @@ def undersegmentation_error(segments, gt, mask=None):
     total_error = 0
     total_pixels = mask.sum()
 
-    for s in np.unique(segments):
+    for s in np.unique(segments):  
         sp = (segments == s) & mask
         if sp.sum() == 0:
             continue
