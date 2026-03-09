@@ -28,9 +28,12 @@ def undersegmentation_error(segments, gt, mask=None):
 
     return total_error / total_pixels #Divison par N
 
+
+
 def boundary_recall(segments, gt, mask=None, radius=2):
     #Cette fonction calcule le BR égal au nombre de frontières GT détectées/Nombre de total de frontières GT
     
+    #Extraction des contours GT et segmentation
     gt_b = find_boundaries(gt, mode="thick")
     sp_b = find_boundaries(segments, mode="thick")
 
@@ -38,6 +41,7 @@ def boundary_recall(segments, gt, mask=None, radius=2):
         gt_b &= mask
         sp_b &= mask
 
+    #Dilatation
     sp_b_dilated = binary_dilation(sp_b, iterations=radius)
     matched = gt_b & sp_b_dilated
 
@@ -66,11 +70,9 @@ img = img / np.max(img)
 
 #Réalisation des segmentations
 
-segments_fz = felzenszwalb(img, scale=100, sigma=0.55, min_size=50)
-#segments_slic = slic(img, n_segments=250, compactness=10, sigma=1, start_label=1, channel_axis=None)
-#segments_quick = quickshift(img, kernel_size=3, max_dist=6, ratio=0.5)
+segments_fz = felzenszwalb(img, scale = 50, sigma=0.5, min_size=50)
 gradient = sobel(img)
-segments_watershed = watershed(gradient, markers=250, compactness=0.001, mask = mask)
+segments_watershed = watershed(gradient, markers= 50, compactness=0.01, mask = mask)
 
 #Calcul des Metrics
 br_fz = boundary_recall(segments_fz, gt)
@@ -92,8 +94,6 @@ print("Undersegmentation Error Watershed:", ue_ws)
 
 
 print(f'Felzenszwalb number of segments: {len(np.unique(segments_fz))}')
-#print(f'SLIC number of segments: {len(np.unique(segments_slic))}')
-#print(f'Quickshift number of segments: {len(np.unique(segments_quick))}')
 print(f'Watershed number of segments: {len(np.unique(segments_watershed))}')
 
 fig, ax = plt.subplots(1, 3, figsize=(15, 5))

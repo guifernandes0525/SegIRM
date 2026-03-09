@@ -8,9 +8,9 @@ from mri_metrics import (
     achievable_segmentation_accuracy
 )
 
-nii_path = "data_nii/"
-fig_path = "segmentation/"
-metrics_path = "metrics/"
+nii_path = "C:/ENSEIRB/S8 PROJET_THEMATIQUE IRM/SegIRM/data_nii/"
+fig_path = "C:/ENSEIRB/S8 PROJET_THEMATIQUE IRM/SegIRM/segmentation/"
+metrics_path = "C:/ENSEIRB/S8 PROJET_THEMATIQUE IRM/SegIRM/metrics/"
 
 
 img = nib.load(nii_path + "img.nii").get_fdata()
@@ -42,9 +42,9 @@ grad = np.sqrt(gx**2 + gy**2)
 img_features = np.stack([img2d_norm, grad], axis=-1)
 
 # --- Parameter grid ---
-n_segments_list = [100, 400, 1000]
-compactness_list = [0.1, 0.5, 1, 5]   # Lower values → better boundary adherence
-sigma_list = [0, 1, 2]
+n_segments_list = [50, 100, 200, 300, 500, 800]
+compactness_list = [5]   # Lower values → better boundary adherence
+sigma_list = [1]
 
 # --- Open metrics file ---
 with open(metrics_path + "2d_metrics.csv", "w+") as metrics:
