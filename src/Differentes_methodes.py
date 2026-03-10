@@ -3,7 +3,7 @@ import numpy as np
 import nibabel as nib
 
 from skimage.filters import sobel
-from skimage.segmentation import felzenszwalb, watershed
+from skimage.segmentation import felzenszwalb, watershed, slic
 from skimage.segmentation import mark_boundaries
 from scipy.ndimage import binary_dilation
 from skimage.segmentation import find_boundaries 
@@ -63,7 +63,14 @@ print(img.shape)
 slice_id = 90
 img = img[:, :, slice_id]
 gt = gt[:, :, slice_id]
-mask = mask[:, :, slice_id]
+mask = mask[:, :, slice_id] > 0
+
+print(np.sum(mask)/(mask.shape[0]*mask.shape[1]))
+
+#plt.figure()
+#plt.imshow(gt)
+#plt.show()
+
 #Normalisation de l'image
 img = img / np.max(img)
 
@@ -71,12 +78,16 @@ img = img / np.max(img)
 #Réalisation des segmentations
 
 segments_fz = felzenszwalb(img, scale = 50, sigma=0.5, min_size=50)
+segments_slic = slic(img, n_segments=200, compactness=0.05, sigma=1, start_label=0, channel_axis = None)
 gradient = sobel(img)
-segments_watershed = watershed(gradient, markers= 50, compactness=0.01, mask = mask)
+segments_watershed = watershed(gradient, markers= 50, compactness=0.01)
 
 #Calcul des Metrics
 br_fz = boundary_recall(segments_fz, gt)
 ue_fz = undersegmentation_error(segments_fz, gt)
+
+br_slic = boundary_recall(segments_slic, gt)
+ue_slic = undersegmentation_error(segments_slic, gt)
 
 br_ws = boundary_recall(segments_watershed, gt)
 ue_ws = undersegmentation_error(segments_watershed, gt)
@@ -91,26 +102,35 @@ print("\nWatershed")
 print("Boundary Recall Watershed :", br_ws)
 print("Undersegmentation Error Watershed:", ue_ws)
 
+print("\nSLIC")
+print("Boundary Recall SLIC :", br_slic)
+print("Undersegmentation Error SLIC:", ue_slic)
 
 
+print(f'SLIC number of segments: {len(np.unique(segments_slic))}')
 print(f'Felzenszwalb number of segments: {len(np.unique(segments_fz))}')
 print(f'Watershed number of segments: {len(np.unique(segments_watershed))}')
 
-fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+fig, ax = plt.subplots(2,2, figsize=(15, 5))
 
 # Original image
-ax[0].imshow(img, cmap="gray")
-ax[0].set_title("Original IRM")
+ax[0,0].imshow(img, cmap="gray")
+ax[0,0].set_title("Original IRM")
+
+ax[0, 1].imshow(mark_boundaries(img, segments_slic))
+ax[0, 1].set_title(
+    f"SLIC\nBR={br_slic:.3f} UE={ue_slic:.3f}"
+)
 
 # Felzenszwalb
-ax[1].imshow(mark_boundaries(img, segments_fz))
-ax[1].set_title(
+ax[1,0].imshow(mark_boundaries(img, segments_fz))
+ax[1,0].set_title(
     f"Felzenszwalb\nBR={br_fz:.3f} UE={ue_fz:.3f}"
 )
 
 # Watershed
-ax[2].imshow(mark_boundaries(img, segments_watershed))
-ax[2].set_title(
+ax[1,1].imshow(mark_boundaries(img, segments_watershed))
+ax[1,1].set_title(
     f"Watershed\nBR={br_ws:.3f} UE={ue_ws:.3f}"
 )
 
