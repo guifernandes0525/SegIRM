@@ -1,0 +1,40 @@
+import numpy as np
+import nibabel as nib
+import matplotlib.pyplot as plt
+# Image treatment
+from skimage.transform import rescale
+from skimage.exposure import equalize_hist
+from skimage.filters import rank
+from skimage.morphology import disk
+
+
+class BioimgTools2d:
+
+    def rescale(data, scale_factor):
+        return rescale(
+        data,
+        scale=scale_factor,  # e.g., 2.0 for 2x resolution
+        order=0,  # Nearest-neighbor (no interpolation)
+        mode='reflect',  # Edge handling
+        preserve_range=True,  # Keep original intensity range
+        anti_aliasing=False  # Disable for nearest-neighbor
+    )
+
+    def normalize_histogram(data):
+        """Apply histogram equalization to each MRI slice."""
+        normalized_data = np.zeros_like(data)
+        normalized_data = equalize_hist(data)
+        return normalized_data
+
+    def normalize_linear(mri_data, max = 255):
+        """Normalize MRI to [0, 1] range."""
+        data = mri_data.astype(np.float64)
+        data -= data.min()
+        data /= data.max()
+        return data*max
+
+    def apply_bilateral(mri_data: np.ndarray, sigma_color=0.05, sigma_spatial=1):
+        """Apply bilateral filter to smooth MRI while preserving edges."""
+        filtered_data = np.zeros_like(mri_data)
+        filtered_data = rank.mean_bilateral(mri_data, selem=disk(1), s0=sigma_color, s1=sigma_spatial)
+        return filtered_data

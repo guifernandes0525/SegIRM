@@ -7,11 +7,15 @@ def undersegmentation_error(segments, gt, mask=None):
     if mask is None:
         mask = np.ones_like(gt, dtype=bool)
 
+    # Ensure segments and mask are boolean or integer
+    segments = np.asarray(segments, dtype=int)
+    mask = np.asarray(mask, dtype=bool)
+
     total_error = 0
     total_pixels = mask.sum()
 
     for s in np.unique(segments):
-        sp = (segments == s) & mask
+        sp = (segments == s) & mask  # Now segments and mask are compatible
         if sp.sum() == 0:
             continue
 
@@ -19,13 +23,20 @@ def undersegmentation_error(segments, gt, mask=None):
         total_error += sp.sum() - counts.max()
 
     return total_error / total_pixels
+from skimage.segmentation import find_boundaries
+from scipy.ndimage import binary_dilation
 
 def boundary_recall(segments, gt, mask=None, radius=2):
+    # Ensure all arrays are of the correct type
+    segments = np.asarray(segments, dtype=int)
+    gt = np.asarray(gt, dtype=int)
+    if mask is not None:
+        mask = np.asarray(mask, dtype=bool)
+
     gt_b = find_boundaries(gt, mode="inner")
     sp_b = find_boundaries(segments, mode="inner")
 
     if mask is not None:
-        ## should this be happening
         gt_b &= mask
         sp_b &= mask
 
@@ -34,35 +45,22 @@ def boundary_recall(segments, gt, mask=None, radius=2):
 
     return matched.sum() / (gt_b.sum() + 1e-8)
 
+
 def achievable_segmentation_accuracy(segments, gt, mask=None):
-    
-    """
-    Compute Achievable Segmentation Accuracy (ASA)
-    according to Achanta et al.
-
-    Parameters
-    ----------
-    segments : ndarray (H, W)
-        Superpixel label map.
-    gt : ndarray (H, W)
-        Ground-truth segmentation.
-    mask : ndarray (H, W), optional
-        Boolean mask of valid pixels.
-
-    Returns
-    -------
-    asa : float
-        Achievable Segmentation Accuracy.
-    """
-
+    # Ensure all arrays are of the correct type
+    segments = np.asarray(segments, dtype=int)
+    gt = np.asarray(gt, dtype=int)
     if mask is not None:
+        mask = np.asarray(mask, dtype=bool)
         segments = segments[mask]
         gt = gt[mask]
 
     total_pixels = len(segments)
+    if total_pixels == 0:
+        return 0.0
+
     asa_sum = 0
 
-    # Iterate over each superpixel
     for sp_label in np.unique(segments):
         sp_mask = segments == sp_label
         gt_labels_in_sp = gt[sp_mask]
@@ -70,9 +68,8 @@ def achievable_segmentation_accuracy(segments, gt, mask=None):
         if gt_labels_in_sp.size == 0:
             continue
 
-        # Count overlap with each GT region
         counts = np.bincount(gt_labels_in_sp)
-        asa_sum += counts.max()
+        if len(counts) > 0:
+            asa_sum += counts.max()
 
     return asa_sum / total_pixels
-
