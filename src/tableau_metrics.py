@@ -11,8 +11,6 @@ from skimage.measure import regionprops
 from scipy.spatial import ConvexHull
 from skimage.segmentation import find_boundaries
 
-
-
 def shape_regulariy_SRC(segments, mask=None):
 
     labels = np.unique(segments)

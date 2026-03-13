@@ -1,6 +1,5 @@
 import numpy as np
-
-from skimage.segmentation import find_boundaries, mark_boundaries
+from skimage.segmentation import find_boundaries
 from scipy.ndimage import binary_dilation
 
 def undersegmentation_error(segments, gt, mask=None):

@@ -59,6 +59,4 @@ if __name__ == "__main__":
 
     plt.show()
         
-    #plt.imshow(BioimgTools.normalize_histogram(mri.get_slice(mri.z_dim//2, 'z') * mask.get_slice(mri.z_dim//2, 'z')).T)
-
     plt.show()
