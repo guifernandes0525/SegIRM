@@ -104,6 +104,11 @@ min_val = brain_pixels.min()
 max_val = brain_pixels.max()
 
 img2d_norm[mask2d] = (brain_pixels - min_val) / (max_val - min_val)
+img2d_norm[~mask2d] = 0  #Fond à 0 explicitement
+
+#Image masquée 
+img_masked = img2d_norm * mask2d
+
 
 # -----------------------------
 # Gradient feature
@@ -113,21 +118,21 @@ gy = sobel(img2d_norm, axis=1)
 grad = np.sqrt(gx**2 + gy**2)
 
 img_features = np.stack([img2d_norm, grad], axis=-1)
-
+gradient = grad * mask2d #gradient masqué 
 # -------------------------------------------------
 # Parameter grids
 # -------------------------------------------------
 
 # SLIC
 n_segments_list = [50, 100, 200, 300, 500, 800]
-compactness_list = [5]
+compactness_list = [0.05, 0.5, 5] 
 sigma_list = [1]
 
 # Watershed
 markers_list = [50, 100, 200, 300, 500]
 
 # Felzenszwalb
-scale_list = [50, 100, 200, 300]
+scale_list = [50, 100, 150, 200]
 fz_sigma_list = [0.5, 1]
 min_size_list = [20, 50]
 
@@ -142,7 +147,8 @@ gradient = np.sqrt(gx**2 + gy**2)
 with open(metrics_path + "2d_metrics_all_methods.csv", "w+") as metrics:
 
     metrics.write(
-        "Method;Param1;Param2;Param3;"
+        "Method;N_segments_or_markers;Compactness_or_scale;Sigma;Min_size;"
+        "NSegments_real;"
         "UnderSegmentation;BoundaryRecall;ASA;SRC\n"
     )
 
@@ -163,16 +169,17 @@ with open(metrics_path + "2d_metrics_all_methods.csv", "w+") as metrics:
                     start_label=0,
                     channel_axis=-1
                 )
-
+                
+                n_real = len(np.unique(segments[mask2d]))
                 ue = undersegmentation_error(segments, gt2d, mask2d)
-                br = boundary_recall(segments, gt2d, radius=2)
+                br = boundary_recall(segments, gt2d, mask=mask2d, radius=2)
                 asa = achievable_segmentation_accuracy(segments, gt2d, mask2d)
                 src = shape_regulariy_SRC(segments, mask2d)
 
                 metrics.write(
-                    f"SLIC;{n_segments};{compactness};{sigma};"
-                    f"{ue:.5f};{br:.5f};{asa:.5f};{src:.5f}\n"
-                )   
+                    f"SLIC;{n_segments};{compactness};{sigma};0;"
+                    f"{n_real};{ue:.5f};{br:.5f};{asa:.5f};{src:.5f}\n"
+                )
 
                 boundaries = mark_boundaries(img2d_norm, segments, mode="inner")
 
@@ -192,15 +199,15 @@ with open(metrics_path + "2d_metrics_all_methods.csv", "w+") as metrics:
             markers=markers,
             mask=mask2d
         )
-
+        n_real = len(np.unique(segments[mask2d]))
         ue = undersegmentation_error(segments, gt2d, mask2d)
-        br = boundary_recall(segments, gt2d, radius=2)
+        br = boundary_recall(segments, gt2d, mask=mask2d, radius=2)
         asa = achievable_segmentation_accuracy(segments, gt2d, mask2d)
         src = shape_regulariy_SRC(segments, mask2d)
 
         metrics.write(
-            f"Watershed;{markers};0;0;"
-            f"{ue:.5f};{br:.5f};{asa:.5f};{src:.5f}\n"
+            f"Watershed;{markers};0;0;0;"
+            f"{n_real};{ue:.5f};{br:.5f};{asa:.5f};{src:.5f}\n"
         )
 
         boundaries = mark_boundaries(img2d_norm, segments, mode="inner")
@@ -225,14 +232,15 @@ with open(metrics_path + "2d_metrics_all_methods.csv", "w+") as metrics:
                     min_size=min_size
                 )
 
+                n_real = len(np.unique(segments[mask2d]))
                 ue = undersegmentation_error(segments, gt2d, mask2d)
-                br = boundary_recall(segments, gt2d, radius=2)
+                br = boundary_recall(segments, gt2d, mask=mask2d, radius=2)
                 asa = achievable_segmentation_accuracy(segments, gt2d, mask2d)
                 src = shape_regulariy_SRC(segments, mask2d)
 
                 metrics.write(
-                    f"Felzenszwalb;{scale};{sigma};{min_size};"
-                    f"{ue:.5f};{br:.5f};{asa:.5f};{src:.5f}\n"
+                    f"Felzenszwalb;0;{scale};{sigma};{min_size};"
+                    f"{n_real};{ue:.5f};{br:.5f};{asa:.5f};{src:.5f}\n"
                 )
 
                 boundaries = mark_boundaries(img2d_norm, segments, mode="inner")

@@ -74,23 +74,26 @@ print(np.sum(mask)/(mask.shape[0]*mask.shape[1]))
 #Normalisation de l'image
 img = img / np.max(img)
 
+# Masquage de l'image avant segmentation
+img_masked = img * mask
+
 
 #Réalisation des segmentations
 
-segments_fz = felzenszwalb(img, scale = 50, sigma=0.5, min_size=50)
-segments_slic = slic(img, n_segments=200, compactness=0.05, sigma=1, start_label=0, channel_axis = None)
-gradient = sobel(img)
-segments_watershed = watershed(gradient, markers= 50, compactness=0.01)
+segments_fz = felzenszwalb(img_masked, scale = 50, sigma=0.5, min_size=50)
+segments_slic = slic(img_masked, n_segments=200, compactness=0.05, sigma=1, start_label=0, channel_axis = None, mask = mask)
+gradient = sobel(img_masked)
+segments_watershed = watershed(gradient, markers= 50, compactness=0.01, mask = mask)
 
 #Calcul des Metrics
-br_fz = boundary_recall(segments_fz, gt)
-ue_fz = undersegmentation_error(segments_fz, gt)
+br_fz = boundary_recall(segments_fz, gt, mask=mask)
+ue_fz = undersegmentation_error(segments_fz, gt, mask=mask)
 
-br_slic = boundary_recall(segments_slic, gt)
-ue_slic = undersegmentation_error(segments_slic, gt)
+br_slic = boundary_recall(segments_slic, gt, mask=mask)
+ue_slic = undersegmentation_error(segments_slic, gt, mask=mask)
 
-br_ws = boundary_recall(segments_watershed, gt)
-ue_ws = undersegmentation_error(segments_watershed, gt)
+br_ws = boundary_recall(segments_watershed, gt, mask=mask)
+ue_ws = undersegmentation_error(segments_watershed, gt, mask=mask)
 
 #Affichage des Metrics
 
@@ -113,7 +116,7 @@ print(f'Watershed number of segments: {len(np.unique(segments_watershed))}')
 
 fig, ax = plt.subplots(2,2, figsize=(15, 5))
 
-# Original image
+# Image initiale
 ax[0,0].imshow(img, cmap="gray")
 ax[0,0].set_title("Original IRM")
 
